@@ -85,13 +85,24 @@ app.get('/', (req, res) => {
     });
 });
 
-/* 404 handler */
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: `Route ${req.method} ${req.originalUrl} not found`
+/* Serve React frontend in production */
+if (process.env.NODE_ENV === 'production') {
+    const clientBuildPath = path.join(__dirname, '..', 'WebClient', 'dist');
+    app.use(express.static(clientBuildPath));
+
+    /* SPA catch-all — must come after API routes */
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(clientBuildPath, 'index.html'));
     });
-});
+} else {
+    /* 404 handler (development only — in production the SPA catch-all handles this) */
+    app.use((req, res) => {
+        res.status(404).json({
+            success: false,
+            message: `Route ${req.method} ${req.originalUrl} not found`
+        });
+    });
+}
 
 /* Global error handler */
 app.use((err, req, res, next) => {
@@ -113,7 +124,7 @@ const startServer = async () => {
     try {
         await connectDB();
 
-        server.listen(PORT, '127.0.0.1', () => {
+        server.listen(PORT, '0.0.0.0', () => {
             console.log('═══════════════════════════════════════════');
             console.log('   ConnectHub Server');
             console.log('═══════════════════════════════════════════');

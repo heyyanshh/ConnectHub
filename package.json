@@ -1,0 +1,11 @@
+{
+  "name": "connecthub",
+  "version": "1.0.0",
+  "description": "ConnectHub - Smart Contact Management System with Real-Time Chat",
+  "scripts": {
+    "install:all": "cd Server && npm install && cd ../WebClient && npm install",
+    "build": "cd WebClient && npm run build",
+    "start": "cd Server && node server.js",
+    "render-build": "npm run install:all && npm run build"
+  }
+}

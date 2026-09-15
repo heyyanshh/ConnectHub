@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api'
+  baseURL: import.meta.env.VITE_API_URL || '/api'
 });
 
 export const loginUser = async (phone, password) => {
@@ -16,6 +16,15 @@ export const loginUser = async (phone, password) => {
 export const registerUser = async (displayName, phone, password) => {
   try {
     const response = await api.post('/users/register', { displayName, phone, password });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { success: false, errors: ['Network error occurred'] };
+  }
+};
+
+export const forgotPassword = async (phone, displayName, newPassword) => {
+  try {
+    const response = await api.post('/users/forgot-password', { phone, displayName, newPassword });
     return response.data;
   } catch (error) {
     throw error.response?.data || { success: false, errors: ['Network error occurred'] };

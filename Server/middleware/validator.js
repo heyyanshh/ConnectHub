@@ -127,11 +127,40 @@ const validatePhoneParam = (req, res, next) => {
     next();
 };
 
+/**
+ * Middleware: Validate forgot password request data
+ */
+const validateForgotPassword = (req, res, next) => {
+    const { phone, displayName, newPassword } = req.body;
+    const errors = [];
+
+    if (!phone) {
+        errors.push('Phone number is required');
+    } else if (!isValidPhone(phone)) {
+        errors.push('Invalid phone number format');
+    }
+
+    if (!displayName || displayName.trim().length < 2) {
+        errors.push('Display name is required');
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+        errors.push('New password must be at least 6 characters');
+    }
+
+    if (errors.length > 0) {
+        return res.status(400).json({ success: false, errors });
+    }
+
+    next();
+};
+
 module.exports = {
     isValidPhone,
     isValidEmail,
     validateUserRegistration,
     validateUserLogin,
     validateContact,
-    validatePhoneParam
+    validatePhoneParam,
+    validateForgotPassword
 };

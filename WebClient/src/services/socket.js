@@ -11,8 +11,9 @@ class SocketService {
       this.socket.disconnect();
     }
     
-    // Connect to the proxy we set up in Vite
-    this.socket = io('/');
+    // In production, connect to the same origin; in dev, Vite proxy handles '/'
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+    this.socket = io(socketUrl);
 
     this.socket.on('connect', () => {
       console.log('Connected to WebSocket server');

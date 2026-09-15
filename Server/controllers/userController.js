@@ -249,11 +249,58 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+/**
+ * Forgot password – reset via phone + displayName verification.
+ * POST /api/users/forgot-password
+ */
+const forgotPassword = async (req, res) => {
+    try {
+        const { phone, displayName, newPassword } = req.body;
+        const cleanPhone = phone.replace(/\s+/g, '');
+
+        /* Find the user by phone */
+        const user = await User.findOne({ phone: cleanPhone });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                errors: ['No account found with this phone number']
+            });
+        }
+
+        /* Verify displayName matches (case-insensitive) */
+        if (user.displayName.toLowerCase().trim() !== displayName.toLowerCase().trim()) {
+            return res.status(401).json({
+                success: false,
+                errors: ['Display name does not match our records']
+            });
+        }
+
+        /* Hash the new password and save */
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password has been reset successfully. You can now log in with your new password.'
+        });
+    } catch (error) {
+        console.error('[UserController] forgotPassword error:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during password reset',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getUser,
     updateUser,
     getOnlineUsers,
-    getAllUsers
+    getAllUsers,
+    forgotPassword
 };

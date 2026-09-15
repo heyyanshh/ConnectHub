@@ -2,11 +2,13 @@
  * ConnectHub - User Routes
  * 
  * Endpoints:
- *   POST   /api/users/register     - Register new user
- *   GET    /api/users/online/list   - Get online users
- *   GET    /api/users/all/list      - Get all users
- *   GET    /api/users/:phone        - Get user by phone
- *   PUT    /api/users/:phone        - Update user profile
+ *   POST   /api/users/register         - Register new user
+ *   POST   /api/users/login             - Login user
+ *   POST   /api/users/forgot-password   - Reset forgotten password
+ *   GET    /api/users/online/list       - Get online users
+ *   GET    /api/users/all/list          - Get all users
+ *   GET    /api/users/:phone            - Get user by phone
+ *   PUT    /api/users/:phone            - Update user profile
  */
 
 const express = require('express');
@@ -17,16 +19,19 @@ const {
     getUser,
     updateUser,
     getOnlineUsers,
-    getAllUsers
+    getAllUsers,
+    forgotPassword
 } = require('../controllers/userController');
 const {
     validateUserRegistration,
     validateUserLogin,
-    validatePhoneParam
+    validatePhoneParam,
+    validateForgotPassword
 } = require('../middleware/validator');
 
 router.post('/register', validateUserRegistration, registerUser);
 router.post('/login', validateUserLogin, loginUser);
+router.post('/forgot-password', validateForgotPassword, forgotPassword);
 router.get('/online/list', getOnlineUsers);
 router.get('/all/list', getAllUsers);
 router.get('/:phone', validatePhoneParam, getUser);
